@@ -1,18 +1,16 @@
-import React, {useState } from "react";
+import React, {useState ,useRef, useEffect} from "react";
 import {AppBar,Toolbar,
-    CssBaseline,
-    Typography,
-    makeStyles,Paper, Button,Slider,Box} from "@material-ui/core";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+    CssBaseline,Typography,
+    makeStyles,Paper, Button,Slider,Box,
+    Dialog,DialogActions,DialogTitle,
+    DialogContent,CircularProgress,Backdrop} from "@material-ui/core";
 import AutoComplete from "./AutoComplete";
-import {
-  GoogleMap,
-  Marker,
-  DirectionsRenderer,
-} from "@react-google-maps/api";
 import ToggleButton from '@material-ui/lab/ToggleButton';
 import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
-
+import logo from '../assets/bic.png';
+import mapLogo from '../assets/maps-icon.png';
+import Parser from 'html-react-parser';
+import StatsComponent from "./StatsComponent";
 
 const useStyles = makeStyles((theme) => ({
 
@@ -36,7 +34,8 @@ const useStyles = makeStyles((theme) => ({
         flexDirection: 'row',
       },
    logo: {
-      flexGrow: "1",
+      marginLeft:650,
+      width:120,
       cursor: "pointer",
     },
     link: {
@@ -81,66 +80,175 @@ const useStyles = makeStyles((theme) => ({
   }));
 
 const MainComponent =()=>{
+    const [directions, setDirections] = useState(null);
+    const [map, setMap] = useState(undefined);
+    const [alignment, setAlignment] = useState('max');
+    const [source,setSource] = useState(undefined);
+    const [dest,setDest] = useState(undefined);
+    const [percentage,setPercentage] = useState(10);
+    const [steps,setSteps] = useState('');
+    const [dialog,setDialog] = useState(false);
+    const [route,setRoute] = useState([]);
+    const [isLoading,setLoading] = useState(false);
+    const [mapRoute, setMapRoute] = useState(undefined);
+    const [sourceMarker,setsourceMarker] = useState(undefined);
+    const [destMarker,setDestMarker] = useState(undefined);
+    const [stats,setStats] = useState(undefined)
+    const inputRef1 = useRef();
+    const inputRef2 = useRef();
+
     const classes = useStyles();
     const center = {
         lat:42.38027778,
         lng:-72.51972222
       };
-      const [directions, setDirections] = useState(null);
-      const [map, setMap] = useState(null);
-      const places = [
-        {lat: 25.8103146,lng: -80.1751609},
-        {lat: 27.9947147,lng: -82.5943645},
-        {lat: 28.4813018,lng: -81.4387899}
-      ]
-      const waypoints = places.map(p =>({
-        location: {lat: p.lat, lng:p.lng},
-        stopover: true
-    }));
-    const [alignment, setAlignment] = React.useState('max');
 
-  const handleChange = (event, newAlignment) => {
-    setAlignment(newAlignment);
-  };
+    const handleChange = (event, newAlignment) => {
+        setAlignment(newAlignment);
+    };
+
+    useEffect(()=>{
+      createMap();
+    },[]);
+
+    useEffect(()=>{
+      if(route.length>0){
+        map.panTo(new L.LatLng(
+            (route[route.length-1][0] + route[0][0]) / 2, 
+            (route[route.length-1][1] + route[0][1]) / 2
+          ))
+          if(mapRoute)
+             mapRoute.remove();
+          var newRouteLine = L.polyline(route)
+          newRouteLine.setStyle({color:'red'})
+          newRouteLine.addTo(map)
+          setMapRoute(newRouteLine);
+          if(sourceMarker)
+             sourceMarker.remove();
+          let orgMarker = new L.Marker(route[0]);
+          orgMarker.addTo(map);
+          setsourceMarker(orgMarker);
+          if(destMarker)
+             destMarker.remove();
+          let desMarker = new L.Marker(route[route.length-1]);
+           desMarker.addTo(map);
+           setDestMarker(desMarker);
+           
+        } 
+    },[route]);
+
+    const createMap=()=>{
+      let map = L.map('map', {
+          center: [42.373222, -72.519852],
+          zoom: 15,
+          weight: 10,
+          layers: [
+            // L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png')
+            L.tileLayer("https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png")
+            // L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png")
+          ]
+        });
+        setMap(map);
+      }
     
     const handleSubmit=()=>{
-        const origin = waypoints.shift().location;
-        const destination = waypoints.pop().location;
-        const directionsService = new window.google.maps.DirectionsService();
-        const directionsRenderer = new window.google.maps.DirectionsRenderer();
-        directionsRenderer.setMap(map);
-        directionsService.route(
-          {
-            origin: origin,
-            destination: destination,
-            travelMode: window.google.maps.TravelMode.DRIVING,
-            waypoints: waypoints
-          },
-          (result, status) => {
-            if (status === window.google.maps.DirectionsStatus.OK) {
-              console.log(result);
-              setDirections( result);
-              directionsRenderer.setDirections(result);
-            }else {
-              setDirections(null);
-            }
-          }
-        );
+        var request = {
+          'origin': source,
+          'destination': dest,
+          'distance': percentage+'',
+          'elevation':alignment=='max'?'maximal':'minimal',
+          'graph': 'bounded'
+        }
+        let formData = new FormData();
+        formData.append('origin', source);
+        formData.append('destination', dest);
+        formData.append('distance', percentage+'');
+        formData.append('elevation',alignment=='max'?'maximal':'minimal' );
+        formData.append('graph', 'bounded');
+        apiCall(formData);
     }
 
+    const calculateSteps = (res)=>{
+      var legs = res.routes[0].legs;
+      var info = [];
+      var st= '';
+      legs.forEach((leg,index) => {
+            var key = leg.start_address;
+            st+=key+'<br>';
+            var val = ''
+            leg.steps.forEach(step=>{
+               val+=step.instructions+'<br>';
+            });
+            st+=val+'<br>';
+            info[index] = {key:val};
+      });
+      console.log(info);
+      setSteps(st);
+    };
 
+    const apiCall = (request)=>{
+      setLoading(true);
+      fetch("http://localhost:8000/api", {
+        method: 'POST',
+        body: request
+      })
+      .then(res => res.json())
+      .then(data => {
+        let waypoints = data['route'];
+        let stats = data['stats']['resultPath']
+        if(waypoints.length==0)
+          waypoints = data['shortRoute'];
+          stats = data['stats']['shortestPath']
+
+        setRoute(waypoints);
+        setLoading(false);
+        setStats(stats)
+    });
+  }
+
+    const sourceChange = (latLng)=>{
+       setSource(latLng);
+    }
+
+    const destinationChange = (latLng)=>{
+        setDest(latLng);
+     }
+
+     const handleReset = ()=>{
+         setSource(undefined);
+         setDest(undefined);
+         inputRef1.current.value = '';
+         inputRef2.current.value = '';
+         setAlignment('max');
+         setPercentage(10);
+         setDirections(null);
+         setStats(undefined);
+         if(mapRoute)
+             mapRoute.remove();
+        if(sourceMarker)
+            sourceMarker.remove();
+        if(destMarker)
+          destMarker.remove();
+
+     }
+
+     const handleClose=()=>{
+
+     }
+ 
     return(<div><AppBar class={classes.appbar} position="static">
         <CssBaseline />
       <Toolbar>
         <Typography variant="h3" className={classes.logo}>
           Elena
         </Typography>
+        <img style={{marginLeft:10,width:70,height:60}} src={logo}/>
       </Toolbar>
     </AppBar>
     <Paper class={classes.root}>
         <Paper style={{flexDirection:'column',width:900}}>
-    <AutoComplete placeHolder = 'Source' />
-    <AutoComplete placeHolder = 'Destination'/>
+    <AutoComplete inputRef={inputRef1} onChange={sourceChange} placeHolder = 'Source' />
+    <AutoComplete inputRef={inputRef2} onChange={destinationChange} placeHolder = 'Destination'/>
     <ToggleButtonGroup
       color="primary"
       value={alignment}
@@ -153,32 +261,32 @@ const MainComponent =()=>{
     </ToggleButtonGroup>
     <Box width={300} className='slider'>
     <Typography id="input-slider" gutterBottom>
-        X Percentage
+        Percent of shortest distance
       </Typography>
-    <Slider defaultValue={10} aria-label="Default" valueLabelDisplay="auto" />
+    <Slider  max={200} defaultValue={10} aria-label="Default" valueLabelDisplay="auto" value={percentage} onChange={ (e, val) => setPercentage(val) }/>
     </Box>
-    <Button style={{background:'#FF6101' , color: '#ffffff', width:200,position: 'relative',float:'left',marginLeft: 170, marginRight: 10, marginTop: 50,marginBotom: 30}} 
-      variant="contained" onClick={handleSubmit}>Submit</Button>
+    <Button style={{background:'#FF6101' , color: '#ffffff', width:150,position: 'relative',float:'left',marginLeft: 120, marginTop: 50,marginBotom: 30}} 
+      variant="contained" onClick={handleSubmit}>Let's Start</Button>
+      <Button style={{background:'#FF6101' , color: '#ffffff', width:70,position: 'relative',float:'left',marginLeft: 30,marginRight: 50, marginTop: 50,marginBotom: 30}} 
+      variant="contained" onClick={handleReset}>Reset</Button>
+   
+     {/* <Button style={{width:160,height:170,marginTop:20}} onClick={()=>{setDialog(true);}}><img className='mapLogo' src={mapLogo} /></Button> */}
+     {isLoading && <CircularProgress className="progress" color="'#4D148C'"/>}
+     {!isLoading && stats && <div><StatsComponent stats={stats}/></div>
+     }
     </Paper>
     <div class={classes.map} style={{ height: '100vh', width: '100%' }}>
-        <GoogleMap
-        center={center}
-        zoom={13}
-        mapContainerStyle={{ width: "100%", height: "100vh" }}
-        options={{
-          zoomControl: false,
-          streetViewControl: false,
-          mapTypeControl: false,
-          fullscreenControl: false,
-        }}
-        onLoad={(map) => setMap(map)}
-      >
-        <Marker position={center} />
-        {directions && (
-          <DirectionsRenderer directions={directions} />
-        )}
-      </GoogleMap>
-
+    <div id='map'></div>
+      <Dialog open={dialog}>
+        <DialogTitle>Directions</DialogTitle>
+        <DialogContent>{Parser(steps)}</DialogContent>
+        <DialogActions>
+          <Button onClick={()=>{setDialog(false)}} 
+                  color="primary" autoFocus>
+            Close
+          </Button>
+          </DialogActions>
+      </Dialog>
     </div>
     </Paper>
     </div>);

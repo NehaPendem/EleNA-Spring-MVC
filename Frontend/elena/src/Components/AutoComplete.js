@@ -1,8 +1,7 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import React from 'react';
-const AutoComplete = ({placeHolder}) => {
+const AutoComplete = ({inputRef,onChange,placeHolder}) => {
  const autoCompleteRef = useRef();
- const inputRef = useRef();
  const options = {
   componentRestrictions: { country: "usa" },
   fields: ["address_components", "geometry", "icon", "name"],
@@ -16,7 +15,7 @@ const AutoComplete = ({placeHolder}) => {
 
  autoCompleteRef.current.addListener("place_changed", async function () {
     const place = await autoCompleteRef.current.getPlace();
-    console.log({ place });
+    onChange('('+place.geometry.location.lat()+', '+place.geometry.location.lng()+')');
    });
   }, []);
 

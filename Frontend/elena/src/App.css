@@ -72,3 +72,25 @@
   color: black;
   font-size: 1rem;
 }
+
+.icon{
+  width: 20px;
+  height: 20px;
+}
+
+.mapLogo{
+  margin-top: 40px;
+  margin-left: 20px;
+  width: 130px;
+  height: 130px;
+}
+
+#map { height: 750px}
+
+.progress{
+  margin-top: 50px;
+  height: 80px;
+  width: 80px;
+  margin-left: 30px;
+  margin-right: 70px;
+}
