@@ -85,7 +85,7 @@ const MainComponent =()=>{
     const [alignment, setAlignment] = useState('max');
     const [source,setSource] = useState(undefined);
     const [dest,setDest] = useState(undefined);
-    const [percentage,setPercentage] = useState(10);
+    const [percentage,setPercentage] = useState(110);
     const [steps,setSteps] = useState('');
     const [dialog,setDialog] = useState(false);
     const [route,setRoute] = useState([]);
@@ -261,9 +261,9 @@ const MainComponent =()=>{
     </ToggleButtonGroup>
     <Box width={300} className='slider'>
     <Typography id="input-slider" gutterBottom>
-        Percent of shortest distance
+        {percentage}% of shortest distance
       </Typography>
-    <Slider  max={200} defaultValue={10} aria-label="Default" valueLabelDisplay="auto" value={percentage} onChange={ (e, val) => setPercentage(val) }/>
+    <Slider  max={200} defaultValue={110} aria-label="Default" valueLabelDisplay="auto" value={percentage} onChange={ (e, val) => setPercentage(val) }/>
     </Box>
     <Button style={{background:'#FF6101' , color: '#ffffff', width:150,position: 'relative',float:'left',marginLeft: 120, marginTop: 50,marginBotom: 30}} 
       variant="contained" onClick={handleSubmit}>Let's Start</Button>

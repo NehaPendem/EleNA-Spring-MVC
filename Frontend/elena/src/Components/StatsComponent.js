@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Card, CardContent,CardMedia, Typography,CardActionArea } from '@material-ui/core';
-import image from '../assets/hillroad.jpeg'
+import image from '../assets/cycling.webp'
 
 export default function StatsComponent({stats}) {
   return (
@@ -8,16 +8,16 @@ export default function StatsComponent({stats}) {
       <CardActionArea>
         <CardMedia
           component="img"
-          height="120"
+          height="150"
           image={image}
           alt="green iguana"
         />
         <CardContent>
           <Typography gutterBottom variant="h5" component="div">
-            Elevation Gain : {stats.elevationGain}m
+            Elevation Gain: {stats.elevationGain}m
           </Typography>
           <Typography gutterBottom variant="h5" component="div">
-            Path Length: {stats.pathLength}m
+            Route Length: {stats.pathLength}m
           </Typography>
         </CardContent>
       </CardActionArea>
