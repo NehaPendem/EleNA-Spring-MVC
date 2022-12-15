@@ -188,7 +188,7 @@ const MainComponent =()=>{
 
     const apiCall = (request)=>{
       setLoading(true);
-      fetch("http://localhost:8000/api", {
+      fetch(" http://127.0.0.1:8000/get_route/", {
         method: 'POST',
         body: request
       })
@@ -220,7 +220,7 @@ const MainComponent =()=>{
          inputRef1.current.value = '';
          inputRef2.current.value = '';
          setAlignment('max');
-         setPercentage(10);
+         setPercentage(110);
          setDirections(null);
          setStats(undefined);
          if(mapRoute)
@@ -263,7 +263,7 @@ const MainComponent =()=>{
     <Typography id="input-slider" gutterBottom>
         {percentage}% of shortest distance
       </Typography>
-    <Slider  max={200} defaultValue={110} aria-label="Default" valueLabelDisplay="auto" value={percentage} onChange={ (e, val) => setPercentage(val) }/>
+    <Slider  min={100} max={200} defaultValue={110} aria-label="Default" valueLabelDisplay="auto" value={percentage} onChange={ (e, val) => setPercentage(val) }/>
     </Box>
     <Button style={{background:'#FF6101' , color: '#ffffff', width:150,position: 'relative',float:'left',marginLeft: 120, marginTop: 50,marginBotom: 30}} 
       variant="contained" onClick={handleSubmit}>Let's Start</Button>
