@@ -15,7 +15,7 @@ git clone https://github.com/NehaPendem/EleNA-Spring-MVC.git
 2. Open termianl and run **Pip install django** to install django.
 3. Then, navigate backend folder in the same terminal and then install the requirements with the    
    following command.
-    pip install -r requirements.yml
+    pip install -r environment.yml
 3. Finally, run the django project with **python manage.py runserver** command in backend folder. Now, the backend is expected to be up and running.
 
 # Frontend setup
