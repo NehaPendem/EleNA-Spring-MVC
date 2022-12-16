@@ -196,10 +196,10 @@ const MainComponent =()=>{
       .then(data => {
         let waypoints = data['route'];
         let stats = data['stats']['resultPath']
-        if(waypoints.length==0)
+        if(waypoints.length==0){
           waypoints = data['shortRoute'];
           stats = data['stats']['shortestPath']
-
+        }
         setRoute(waypoints);
         setLoading(false);
         setStats(stats)
