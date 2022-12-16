@@ -189,7 +189,7 @@ const MainComponent =()=>{
    */
     const apiCall = (request)=>{
       setLoading(true);
-      fetch(" http://127.0.0.1:8000/get_route/", {
+      fetch("/get_route/", {
         method: 'POST',
         body: request
       })

@@ -24,9 +24,6 @@ class BoundedGraphProvider(GraphProvider):
         longer_diff = max([abs(e - w), abs(n - s)])
         # Load the map inside the bounding box coordinates into a networkx MultiDiGraph
         self.graph = osmnx.graph.graph_from_bbox(n + longer_diff, s - longer_diff, e + longer_diff, w - longer_diff, simplify=False, network_type='walk')
-        print("Hello")
-        print(self.graph.nodes)
-        print("Hi")
         # Add elevation data into each node
         osmnx.elevation.add_node_elevations(self.graph, api_key=api_key)
         # Find the ids of the nodes in the graph closest to the start and end coordinates
