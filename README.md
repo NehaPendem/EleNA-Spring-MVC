@@ -25,7 +25,7 @@ git clone https://github.com/NehaPendem/EleNA-Spring-MVC.git
 3. Finally, run **npm start** to run the frontend application. Then, you can find the application running on **http://localhost:3000/**.
 
 # Documentation 
-Please refer the following url for a breif documentation.
+Please refer the following url for a brief documentation.
 https://github.com/NehaPendem/EleNA-Spring-MVC/tree/main/Backend/report.pdf
 
 # Demo 
