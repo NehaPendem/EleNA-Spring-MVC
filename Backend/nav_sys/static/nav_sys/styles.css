@@ -1,0 +1,72 @@
+/*
+Nothing special here.
+We did not place an emphasis on accessibility, portability or responsiveness.
+Some browsers tested did not have the 'monospace' font.
+*/
+
+body, html {
+    margin: 0;
+    padding: 0;
+}
+
+legend {
+    background-color: black;
+    color: white;
+    font-family: "monospace";
+    padding: 3px 6px;
+}
+
+fieldset {
+    border-color: white;
+    border-width: 0px;
+}
+
+input, label {
+    font-family: "monospace";
+}
+
+#title {
+    font-family: "monospace";
+    font-size: 72px;
+    text-align: center;
+}
+
+#submit-div {
+    display: flex;
+    justify-content: center;
+}
+
+#wrapper {
+    position: relative;
+    display: flex;
+    justify-content: center;
+}
+
+#throbber-div {
+    position: absolute;
+    visibility: hidden;
+}
+
+#stats-div {
+    position: absolute;
+    visibility: hidden;
+    white-space: pre;
+    font-family: "monospace";
+}
+
+#sidebar {
+    height: 100%;
+    width: 20%;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    overflow-x: hidden;
+    padding: 10px 10px;
+}
+
+#map {
+    height: 100vh;
+    margin-left: 20%;
+    z-index: 1;
+}
