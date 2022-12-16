@@ -1,3 +1,6 @@
+/*  This component is used to search the source and destination with the google maps api
+*/
+
 import { useRef, useEffect, useState } from "react";
 import React from 'react';
 const AutoComplete = ({inputRef,onChange,placeHolder}) => {

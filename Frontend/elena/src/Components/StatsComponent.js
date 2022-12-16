@@ -1,3 +1,6 @@
+/*  This component is used to display the elevation based stats
+*/
+
 import * as React from 'react';
 import { Card, CardContent,CardMedia, Typography,CardActionArea } from '@material-ui/core';
 import image from '../assets/cycling.webp'

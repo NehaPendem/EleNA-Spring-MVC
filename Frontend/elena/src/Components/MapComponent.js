@@ -1,3 +1,6 @@
+/*  This component is used to render the maps display
+*/
+
 import React, { Component, useEffect } from 'react';
 import L from 'leaflet';
 import Routing from 'leaflet-routing-machine';

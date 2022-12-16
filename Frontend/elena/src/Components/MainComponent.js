@@ -1,3 +1,7 @@
+/*  This component is the primary component which unifies and displays all the
+ other components for search, stats ans so on.
+*/
+
 import React, {useState ,useRef, useEffect} from "react";
 import {AppBar,Toolbar,
     CssBaseline,Typography,
@@ -12,6 +16,7 @@ import mapLogo from '../assets/maps-icon.png';
 import Parser from 'html-react-parser';
 import StatsComponent from "./StatsComponent";
 
+/* Theming required for the components*/
 const useStyles = makeStyles((theme) => ({
 
     appbar:{
@@ -80,6 +85,8 @@ const useStyles = makeStyles((theme) => ({
   }));
 
 const MainComponent =()=>{
+   /*State variables 
+   */
     const [directions, setDirections] = useState(null);
     const [map, setMap] = useState(undefined);
     const [alignment, setAlignment] = useState('max');
@@ -103,14 +110,20 @@ const MainComponent =()=>{
         lng:-72.51972222
       };
 
+     /* Method to handle type of elevation
+   */
     const handleChange = (event, newAlignment) => {
         setAlignment(newAlignment);
     };
 
+     /* useEffect to load initial map
+   */
     useEffect(()=>{
       createMap();
     },[]);
 
+    /* useEffect to assemble and plot directions on the map 
+   */
     useEffect(()=>{
       if(route.length>0){
         map.panTo(new L.LatLng(
@@ -137,6 +150,8 @@ const MainComponent =()=>{
         } 
     },[route]);
 
+    /* Method to load the OSM map
+   */
     const createMap=()=>{
       let map = L.map('map', {
           center: [42.373222, -72.519852],
@@ -150,7 +165,9 @@ const MainComponent =()=>{
         });
         setMap(map);
       }
-    
+      
+         /* Method to pre-process the api data
+   */
     const handleSubmit=()=>{
         var request = {
           'origin': source,
@@ -168,24 +185,8 @@ const MainComponent =()=>{
         apiCall(formData);
     }
 
-    const calculateSteps = (res)=>{
-      var legs = res.routes[0].legs;
-      var info = [];
-      var st= '';
-      legs.forEach((leg,index) => {
-            var key = leg.start_address;
-            st+=key+'<br>';
-            var val = ''
-            leg.steps.forEach(step=>{
-               val+=step.instructions+'<br>';
-            });
-            st+=val+'<br>';
-            info[index] = {key:val};
-      });
-      console.log(info);
-      setSteps(st);
-    };
-
+    /* Method to request an api call to the backend and fetch the response
+   */
     const apiCall = (request)=>{
       setLoading(true);
       fetch(" http://127.0.0.1:8000/get_route/", {
@@ -196,10 +197,10 @@ const MainComponent =()=>{
       .then(data => {
         let waypoints = data['route'];
         let stats = data['stats']['resultPath']
-        if(waypoints.length==0)
+        if(waypoints.length==0){
           waypoints = data['shortRoute'];
           stats = data['stats']['shortestPath']
-
+        }
         setRoute(waypoints);
         setLoading(false);
         setStats(stats)
@@ -214,6 +215,8 @@ const MainComponent =()=>{
         setDest(latLng);
      }
 
+      /* Method to handle reset and empty the field content
+   */
      const handleReset = ()=>{
          setSource(undefined);
          setDest(undefined);
@@ -232,9 +235,8 @@ const MainComponent =()=>{
 
      }
 
-     const handleClose=()=>{
-
-     }
+    /* Rendering UI for the ELENA dashboard
+   */
  
     return(<div><AppBar class={classes.appbar} position="static">
         <CssBaseline />
@@ -269,8 +271,6 @@ const MainComponent =()=>{
       variant="contained" onClick={handleSubmit}>Let's Start</Button>
       <Button style={{background:'#FF6101' , color: '#ffffff', width:70,position: 'relative',float:'left',marginLeft: 30,marginRight: 50, marginTop: 50,marginBotom: 30}} 
       variant="contained" onClick={handleReset}>Reset</Button>
-   
-     {/* <Button style={{width:160,height:170,marginTop:20}} onClick={()=>{setDialog(true);}}><img className='mapLogo' src={mapLogo} /></Button> */}
      {isLoading && <CircularProgress className="progress" color="'#4D148C'"/>}
      {!isLoading && stats && <div><StatsComponent stats={stats}/></div>
      }
